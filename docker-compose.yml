@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  openclaw:
+    build: .
+    image: openclaw-n1-arm64:latest   # 本地构建的镜像名，实际推送时会覆盖
+    container_name: openclaw
+    restart: unless-stopped
+    ports:
+      - "${OPENCLAW_PORT:-18789}:18789"
+    volumes:
+      - ./config:/home/openclaw/.openclaw   # 注意：需确认官方镜像的用户目录
+      - ./data:/home/openclaw/data
+      - ./logs:/home/openclaw/logs
+    environment:
+      - NODE_ENV=${NODE_ENV:-production}
+      - OPENCLAW_LOG_LEVEL=${OPENCLAW_LOG_LEVEL:-info}
+      - OPENCLAW_DEBUG=${OPENCLAW_DEBUG:-false}
+      - TZ=${TZ:-Asia/Shanghai}
+    env_file:
+      - .env
