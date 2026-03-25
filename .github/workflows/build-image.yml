@@ -3,14 +3,17 @@ name: 构建并同步推送到 DockerHub + GitHub Packages
 on:
   push:
     branches: [ main ]
+    tags:
+      - 'v*'          # 推送标签时额外生成版本标签
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      packages: write  # 允许推送到 GitHub Packages
+      packages: write   # 推送到 GitHub Packages 需要
       contents: read
+
     steps:
       - uses: actions/checkout@v4
 
@@ -35,13 +38,27 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # 构建并同时推送到两个平台
+      # 生成动态标签（latest + git sha + 版本标签）
+      - name: 提取元数据
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: |
+            ${{ secrets.DOCKER_USERNAME }}/openclaw-n1-arm64-zh
+            ghcr.io/${{ github.repository_owner }}/openclaw-n1-arm64-zh
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha,format=short
+            type=semver,pattern={{version}}
+
+      # 构建并推送
       - name: 构建并推送
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           platforms: linux/arm64
-          tags: |
-            ${{ secrets.DOCKER_USERNAME }}/openclaw-n1-arm64-zh:latest
-            ghcr.io/${{ github.repository_owner }}/openclaw-n1-arm64-zh:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
