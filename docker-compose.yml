@@ -3,13 +3,13 @@ version: '3.8'
 services:
   openclaw:
     build: .
-    image: openclaw-n1-arm64:latest   # 本地构建的镜像名，实际推送时会覆盖
+    image: openclaw-n1-arm64:latest
     container_name: openclaw
     restart: unless-stopped
     ports:
       - "${OPENCLAW_PORT:-18789}:18789"
     volumes:
-      - ./config:/home/openclaw/.openclaw   # 注意：需确认官方镜像的用户目录
+      - ./config:/home/openclaw/.openclaw
       - ./data:/home/openclaw/data
       - ./logs:/home/openclaw/logs
     environment:
@@ -17,5 +17,9 @@ services:
       - OPENCLAW_LOG_LEVEL=${OPENCLAW_LOG_LEVEL:-info}
       - OPENCLAW_DEBUG=${OPENCLAW_DEBUG:-false}
       - TZ=${TZ:-Asia/Shanghai}
+      # 添加代理配置
+      - HTTP_PROXY=${HTTP_PROXY:-http://192.168.2.80:7890}
+      - HTTPS_PROXY=${HTTPS_PROXY:-http://192.168.2.80:7890}
+      - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1}
     env_file:
       - .env
