@@ -17,9 +17,9 @@ services:
       - OPENCLAW_LOG_LEVEL=${OPENCLAW_LOG_LEVEL:-info}
       - OPENCLAW_DEBUG=${OPENCLAW_DEBUG:-false}
       - TZ=${TZ:-Asia/Shanghai}
-      # 添加代理配置
-      - HTTP_PROXY=${HTTP_PROXY:-http://192.168.2.80:7890}
-      - HTTPS_PROXY=${HTTPS_PROXY:-http://192.168.2.80:7890}
+      # 代理环境变量
+      - HTTP_PROXY=${HTTP_PROXY}
+      - HTTPS_PROXY=${HTTPS_PROXY}
       - NO_PROXY=${NO_PROXY:-localhost,127.0.0.1}
     env_file:
-      - .env
+      - .env   # 加载 .env 文件，上面 environment 中的变量会覆盖 .env 中的同名变量
