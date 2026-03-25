@@ -1,4 +1,5 @@
-FROM openclaw/openclaw:latest
+# 【修复】换成正确的公开基础镜像
+FROM ghcr.io/openclaw-project/openclaw:latest
 
 # 启用简体中文
 ENV LANG=zh_CN.UTF-8 \
